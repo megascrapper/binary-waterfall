@@ -35,6 +35,8 @@ from PyQt5.QtGui import (
     QImage, QPixmap, QIcon,
     QPainter
 )
+import multiprocessing
+from typing import Optional
 
 # TODO: temporary imports
 import cProfile
@@ -2756,26 +2758,46 @@ class Renderer:
             format = self.ImageFormatCode.PNG
 
         for frame in range(frame_count):
-            frame_number = str(frame).rjust(frame_number_digits, "0")
-            frame_filename = os.path.join(directory, f"{frame_number}{format.value}")
-            frame_ms = round((frame / fps) * 1000)
+            self.process_frame(frame, format, frame_number_digits, directory, fps, size, keep_aspect, watermark, progress_dialog)
+            # frame_number = str(frame).rjust(frame_number_digits, "0")
+            # frame_filename = os.path.join(directory, f"{frame_number}{format.value}")
+            # frame_ms = round((frame / fps) * 1000)
 
-            if progress_dialog is not None:
-                progress_dialog.setValue(frame)
+            # if progress_dialog is not None:
+            #     progress_dialog.setValue(frame)
 
-                if progress_dialog.wasCanceled():
-                    return
+            #     if progress_dialog.wasCanceled():
+            #         return
 
-            self.export_frame(
-                ms=frame_ms,
-                filename=frame_filename,
-                size=size,
-                keep_aspect=keep_aspect,
-                watermark=watermark
-            )
+            # self.export_frame(
+            #     ms=frame_ms,
+            #     filename=frame_filename,
+            #     size=size,
+            #     keep_aspect=keep_aspect,
+            #     watermark=watermark
+            # )
 
         if progress_dialog is not None:
             progress_dialog.setValue(frame_count)
+
+    def process_frame(self, frame: int, image_format: ImageFormatCode, frame_number_digits: int, directory: any, fps: float, size: Optional[any], keep_aspect: bool, watermark: bool, progress_dialog: Optional[any]) -> None:
+        frame_number = str(frame).rjust(frame_number_digits, "0")
+        frame_filename = os.path.join(directory, f"{frame_number}{image_format.value}")
+        frame_ms = round((frame / fps) * 1000)
+
+        if progress_dialog is not None:
+            progress_dialog.setValue(frame)
+
+            if progress_dialog.wasCanceled():
+                return
+
+        self.export_frame(
+            ms=frame_ms,
+            filename=frame_filename,
+            size=size,
+            keep_aspect=keep_aspect,
+            watermark=watermark
+        )
 
     def export_video(self,
                      filename,
