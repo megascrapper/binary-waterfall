@@ -36,6 +36,7 @@ from PyQt5.QtGui import (
     QPainter
 )
 import multiprocessing
+from itertools import repeat
 from typing import Optional
 
 # TODO: temporary imports
@@ -297,8 +298,8 @@ class BinaryWaterfall:
             volume=volume
         )
 
-    def __del__(self):
-        self.cleanup()
+    # def __del__(self):
+    #     self.cleanup()
 
     def set_filename(self, filename):
         # Delete current audio file if it exists
@@ -2757,39 +2758,20 @@ class Renderer:
         if format is None:
             format = self.ImageFormatCode.PNG
 
-        for frame in range(frame_count):
-            self.process_frame(frame, format, frame_number_digits, directory, fps, size, keep_aspect, watermark, progress_dialog)
-            # frame_number = str(frame).rjust(frame_number_digits, "0")
-            # frame_filename = os.path.join(directory, f"{frame_number}{format.value}")
-            # frame_ms = round((frame / fps) * 1000)
+        frames = range(frame_count)
+        if progress_dialog is not None:
+            progress_dialog.setValue(0)
 
-            # if progress_dialog is not None:
-            #     progress_dialog.setValue(frame)
-
-            #     if progress_dialog.wasCanceled():
-            #         return
-
-            # self.export_frame(
-            #     ms=frame_ms,
-            #     filename=frame_filename,
-            #     size=size,
-            #     keep_aspect=keep_aspect,
-            #     watermark=watermark
-            # )
+        with multiprocessing.Pool() as pool:
+            pool.starmap(self.process_frame, zip(frames, repeat(format), repeat(frame_number_digits), repeat(directory), repeat(fps), repeat(size), repeat(keep_aspect), repeat(watermark)))
 
         if progress_dialog is not None:
             progress_dialog.setValue(frame_count)
 
-    def process_frame(self, frame: int, image_format: ImageFormatCode, frame_number_digits: int, directory: any, fps: float, size: Optional[any], keep_aspect: bool, watermark: bool, progress_dialog: Optional[any]) -> None:
+    def process_frame(self, frame: int, image_format: ImageFormatCode, frame_number_digits: int, directory: any, fps: float, size: Optional[any], keep_aspect: bool, watermark: bool, progress_dialog: Optional[any] = None) -> None:
         frame_number = str(frame).rjust(frame_number_digits, "0")
         frame_filename = os.path.join(directory, f"{frame_number}{image_format.value}")
         frame_ms = round((frame / fps) * 1000)
-
-        if progress_dialog is not None:
-            progress_dialog.setValue(frame)
-
-            if progress_dialog.wasCanceled():
-                return
 
         self.export_frame(
             ms=frame_ms,
