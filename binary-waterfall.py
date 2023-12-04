@@ -299,9 +299,6 @@ class BinaryWaterfall:
             volume=volume
         )
 
-    # def __del__(self):
-    #     self.cleanup()
-
     def set_filename(self, filename):
         # Delete current audio file if it exists
         self.delete_audio()
@@ -1783,7 +1780,7 @@ class MyQMainWindow(QMainWindow):
             scale=0.75,
             parent=self
         )
-        self.transport_forward.setFocusPolicy(Qt.NoFocus)
+        self.transport_forward.setFocusPolicy(Qt.NoFocuMyQs)
         self.transport_forward.setFixedSize(self.transport_forward.width, self.transport_forward.height)
         self.transport_forward.clicked.connect(self.forward_clicked)
 
@@ -1937,6 +1934,10 @@ class MyQMainWindow(QMainWindow):
 
         # Set window to content size
         self.resize_window()
+
+    def __del__(self):
+        super.__del__()
+        self.bw.cleanup()
 
     def keyPressEvent(self, event):
         key = event.key()
