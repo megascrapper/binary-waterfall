@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import pathlib
 import sys
 from enum import Enum
 import yaml
@@ -2830,10 +2831,8 @@ class Renderer:
             custom_logger.set_progress_dialog(progress_dialog, start_progress=0)
 
         # Make a list of the image filenames
-        frames_list = list()
-        for frame_filename in os.listdir(image_dir):
-            full_frame_filename = os.path.join(image_dir, frame_filename)
-            frames_list.append(full_frame_filename)
+        frames_list = [os.path.join(image_dir, frame_filename) for frame_filename in os.listdir(image_dir)]
+        frames_list.sort(key=lambda file: int(pathlib.Path(file).stem))
 
         # Merge image sequence and audio into final video
         sequence_clip = ImageSequenceClip(frames_list, fps=fps)
