@@ -42,7 +42,7 @@ from itertools import repeat
 from typing import Optional
 
 # TODO: temporary imports
-import cProfile
+# import cProfile
 
 # Test if this is a PyInstaller executable or a .py file
 if getattr(sys, 'frozen', False):
@@ -303,6 +303,8 @@ class BinaryWaterfall:
         )
 
     def set_filename(self, filename):
+        logging.info(f"Setting audio file to {filename}")
+
         # Delete current audio file if it exists
         self.delete_audio()
 
@@ -513,6 +515,8 @@ class BinaryWaterfall:
         return audio_length_ms
 
     def compute_audio(self):
+        logging.info("Computing audio")
+
         if self.filename == None:
             # If there is no file set, reset the vars
             self.audio_length_ms = None
@@ -2369,8 +2373,8 @@ class MyQMainWindow(QMainWindow):
                 else:
                     add_watermark = True
 
-                profiler = cProfile.Profile()
-                profiler.enable()
+                # profiler = cProfile.Profile()
+                # profiler.enable()
                 self.renderer.export_video(
                     filename=filename,
                     size=(settings["width"], settings["height"]),
@@ -2379,8 +2383,8 @@ class MyQMainWindow(QMainWindow):
                     watermark=add_watermark,
                     progress_dialog=progress_popup
                 )
-                profiler.disable()
-                profiler.dump_stats(os.path.join("out", f"{filename}.prof"))
+                # profiler.disable()
+                # profiler.dump_stats(os.path.join("out", f"{filename}.prof"))
 
                 if progress_popup.wasCanceled():
                     choice = QMessageBox.warning(
@@ -2694,6 +2698,8 @@ class Renderer:
                      keep_aspect=False,
                      watermark=False
                      ):
+        logging.debug(f"Exporting frame at {ms} ms to {filename}") # this is a debuglog to reduce noise
+
         self.make_file_path(filename)
 
         if self.bw.audio_filename == None:
@@ -2726,6 +2732,8 @@ class Renderer:
         final.save(filename)
 
     def export_audio(self, filename):
+        logging.info(f"Exporting audio to {filename}")
+
         filename_main, filename_ext = os.path.splitext(filename)
         filename_ext = filename_ext.lower()
 
@@ -2756,6 +2764,8 @@ class Renderer:
                         watermark=False,
                         progress_dialog=None
                         ):
+        logging.info(f"Exporting sequence to {directory}")
+
         self.make_file_path(directory)
 
         frame_count = self.get_frame_count(fps)
@@ -2797,6 +2807,8 @@ class Renderer:
                      watermark=False,
                      progress_dialog=None
                      ):
+        logging.info(f"Exporting video to {filename}")
+
         # Get temporary directory
         temp_dir = tempfile.mkdtemp()
         logging.info(f"Created temporary directory at {temp_dir}")
