@@ -41,9 +41,6 @@ import logging
 from itertools import repeat
 from typing import Optional
 
-# TODO: temporary imports
-# import cProfile
-
 # Test if this is a PyInstaller executable or a .py file
 if getattr(sys, 'frozen', False):
     IS_EXE = True
@@ -2373,8 +2370,6 @@ class MyQMainWindow(QMainWindow):
                 else:
                     add_watermark = True
 
-                # profiler = cProfile.Profile()
-                # profiler.enable()
                 self.renderer.export_video(
                     filename=filename,
                     size=(settings["width"], settings["height"]),
@@ -2383,8 +2378,6 @@ class MyQMainWindow(QMainWindow):
                     watermark=add_watermark,
                     progress_dialog=progress_popup
                 )
-                # profiler.disable()
-                # profiler.dump_stats(os.path.join("out", f"{filename}.prof"))
 
                 if progress_popup.wasCanceled():
                     choice = QMessageBox.warning(
@@ -2901,7 +2894,7 @@ class MainWindow:
 
 
 def main(args):
-    logging.basicConfig(format="[%(asctime)s][%(levelname)s] %(message)s", datefmt="%Y-%m-%dT%H:%M:%S%z", encoding='utf-8', level=logging.INFO)
+    logging.basicConfig(format="[%(asctime)s][%(levelname)s][%(module)s] %(message)s", datefmt="%Y-%m-%dT%H:%M:%S%z", encoding='utf-8', level=logging.INFO)
     main_window = MainWindow(args)
     main_window.run()
 
