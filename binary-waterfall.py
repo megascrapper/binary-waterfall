@@ -37,6 +37,7 @@ from PyQt5.QtGui import (
     QPainter
 )
 import multiprocessing
+import logging
 from itertools import repeat
 from typing import Optional
 
@@ -174,6 +175,7 @@ if os.path.isfile(KEY_FILE):
     IS_REGISTERED = KeyValidate(TITLE).is_key_valid(SERIAL_KEY)
 
     if not IS_REGISTERED:
+        logging.info(f"Deleting {KEY_FILE}")
         os.remove(KEY_FILE)
         SERIAL_KEY = None
 else:
@@ -281,6 +283,7 @@ class BinaryWaterfall:
                  volume=100
                  ):
         self.temp_dir = tempfile.mkdtemp()
+        logging.info(f"Created temporary directory at {self.temp_dir}")
 
         self.audio_filename = None  # Pre-init this to make sure delete_audio works
         self.set_filename(filename=filename)
@@ -498,6 +501,7 @@ class BinaryWaterfall:
             # Do nothing
             return
         try:
+            logging.info(f"Deleting {self.audio_filename}")
             os.remove(self.audio_filename)
         except FileNotFoundError:
             pass
@@ -608,6 +612,7 @@ class BinaryWaterfall:
 
     def cleanup(self):
         self.delete_audio()
+        logging.info(f"Deleting {self.temp_dir}")
         shutil.rmtree(self.temp_dir)
 
 
@@ -2293,6 +2298,7 @@ class MyQMainWindow(QMainWindow):
                 )
 
                 if progress_popup.wasCanceled():
+                    # logging.info(f"Deleting {file_dir}")
                     # shutil.rmtree(file_dir) # Dangerous! May delete user data
                     choice = QMessageBox.warning(
                         self,
@@ -2769,6 +2775,7 @@ class Renderer:
         if progress_dialog is not None:
             progress_dialog.setValue(frame_count)
 
+    # Process individual frames
     def process_frame(self, frame: int, image_format: ImageFormatCode, frame_number_digits: int, directory: any, fps: float, size: Optional[any], keep_aspect: bool, watermark: bool, progress_dialog: Optional[any] = None) -> None:
         frame_number = str(frame).rjust(frame_number_digits, "0")
         frame_filename = os.path.join(directory, f"{frame_number}{image_format.value}")
@@ -2792,6 +2799,7 @@ class Renderer:
                      ):
         # Get temporary directory
         temp_dir = tempfile.mkdtemp()
+        logging.info(f"Created temporary directory at {temp_dir}")
 
         # Make file names
         image_dir = os.path.join(temp_dir, "images")
@@ -2818,6 +2826,7 @@ class Renderer:
 
         if progress_dialog is not None:
             if progress_dialog.wasCanceled():
+                logging.info(f"Deleting {temp_dir}")
                 shutil.rmtree(temp_dir)
                 return
 
@@ -2843,6 +2852,7 @@ class Renderer:
 
         if progress_dialog is not None:
             if progress_dialog.wasCanceled():
+                logging.info(f"Deleting {temp_dir}")
                 shutil.rmtree(temp_dir)
                 return
 
@@ -2857,6 +2867,7 @@ class Renderer:
         shutil.move(video_file, filename)
 
         # Delete temporary files
+        logging.info(f"Deleting {temp_dir}")
         shutil.rmtree(temp_dir)
 
         if progress_dialog is not None:
@@ -2878,6 +2889,7 @@ class MainWindow:
 
 
 def main(args):
+    logging.basicConfig(format="[%(asctime)s][%(levelname)s] %(message)s", datefmt="%Y-%m-%dT%H:%M:%S%z", encoding='utf-8', level=logging.INFO)
     main_window = MainWindow(args)
     main_window.run()
 
